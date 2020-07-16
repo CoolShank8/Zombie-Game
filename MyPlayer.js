@@ -1,17 +1,18 @@
 class MyPlayer
 {
+
     constructor(index)
     {
         this.Name = null
         this.Index = index
         this.Model = PlayerModel
         this.Position = {}
+        this.PlayerRef = null
     }
 
     UpdateInfoOnDatabaseUpdate()
     {
 
-        
         database.ref('Players').update({
             ["Player" + str(this.Index)]: {
                 Name: "Cool",
@@ -22,25 +23,18 @@ class MyPlayer
             }
         });
 
-      /*  MyPlayerRef.on("value", function(data)
-        {
-            console.log(data.val())
-
-            this.Position = {
-                x: data.val().Position.x,
-                y: data.val().Position.y,
-            }
-        })
-    } */
 
     }
 
     UpdateInfo()
     {   
-        database.ref("Players/" + "Player" +  this.Index).update({
-            Position: {
-                x: this.Position.x,
-                y: this.Position.y
+        database.ref('Players').update({
+            ["Player" + str(this.Index)]: {
+                Name: "Cool",
+                Position: {
+                    x: this.Model.Position.x,
+                    y: this.Model.Position.y
+                }
             }
         });
     }
