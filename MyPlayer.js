@@ -1,36 +1,18 @@
 class MyPlayer
 {
 
-    constructor(index)
+    constructor(Name)
     {
-        this.Name = null
-        this.Index = index
+        this.Name = Name
         this.Model = PlayerModel
         this.Position = {}
         this.PlayerRef = null
     }
 
-    UpdateInfoOnDatabaseUpdate()
-    {
-
-        database.ref('Players').update({
-            ["Player" + str(this.Index)]: {
-                Name: "Cool",
-                Position: {
-                    x: 200,
-                    y: 200
-                }
-            }
-        });
-
-
-    }
-
     UpdateInfo()
     {   
-        database.ref('Players').update({
-            ["Player" + str(this.Index)]: {
-                Name: "Cool",
+        database.ref('CurrentPlayers').update({
+            [this.Name]: {
                 Position: {
                     x: this.Model.Position.x,
                     y: this.Model.Position.y
@@ -39,8 +21,5 @@ class MyPlayer
         });
     }
 
-    Copy()
-    {
-        return JSON.parse(JSON.stringify(this))
-    }
+
 }

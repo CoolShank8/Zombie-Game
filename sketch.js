@@ -30,85 +30,7 @@ function setup() {
     Density: 3
 }
 
-
-  var index = GetHighestDatabasePlayerIndex()
-
-  //ThisPlayer = new MyPlayer(index)
-
-
-  //console.log(ThisPlayer.Index)
-
-  //ThisPlayer.UpdateInfoOnDatabaseUpdate()
-
-  var LoginForm = new Form()
-
-  var EnterUsername = LoginForm.CreateInput("Username", Vector2.new(displayWidth/2, 300))
-  var EnterPassword = LoginForm.CreateInput("Password",  Vector2.new(displayWidth/2, 400))
-
-  var LoginButton = LoginForm.CreateButton("Login", Vector2.new(displayWidth/2, 500), async function()
-  {
-    console.log(UserName)
-
-    if (UserName == null)
-    {
-
-        var Status = await LoginHandler(EnterPassword.value(), EnterUsername.value())
-        LoginButton.html(Status)
-
-
-        if (Status == "Sucessfully logging in" )
-        {
-          setTimeout(StartGame, 2000)
-
-          setTimeout(function()
-          {
-            LoginForm.Hide()
-            ReigsterForm.Hide()
-            RegisterAccountButton.hide()
-            ShowLoginFormButton.hide()
-          },2000)
-        }
-    }
-  })
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  var ReigsterForm = new Form()
-
-  var RegisterFormEnterUsername = ReigsterForm.CreateInput("Username", Vector2.new(displayWidth/2, 300))
-  var RegisterFormEnterPassword = ReigsterForm.CreateInput("Password",  Vector2.new(displayWidth/2, 400))
-
-  var RegisterButton = ReigsterForm.CreateButton("Create Account", Vector2.new(displayWidth/2, 500), async function()
-  {
-    console.log("register button pressed")
-
-    var Status = await RegisterHandler(RegisterFormEnterUsername.value(), RegisterFormEnterPassword.value())
-
-    RegisterButton.html(Status)
-  })
-
-  ReigsterForm.Hide()
-  LoginForm.Hide()
-
-  var ShowLoginFormButton = createButton("Login into account")
-  ShowLoginFormButton.position(displayWidth/2 - 100, 200)
-
-  ShowLoginFormButton.mousePressed(function()
-  {
-    LoginForm.Show()
-    ShowLoginFormButton.hide()
-  })
-  
-
-  
-  var RegisterAccountButton = createButton("Make an account")
-
-  RegisterAccountButton.position(displayWidth/2 + 100, 200)
-
-  RegisterAccountButton.mousePressed(function()
-  {
-    ReigsterForm.Show()
-    ShowLoginFormButton.hide()
-  })
+  StartForm()
 }
 
 function draw() {
@@ -122,28 +44,28 @@ function draw() {
       {
         PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(0,5))
         
-        //ThisPlayer.UpdateInfo()
+        ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(38))
       {
         PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(0,-5))
 
-        //ThisPlayer.UpdateInfo()
+        ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(37)) // left arrow
       {
         PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(-5,0))
 
-        //ThisPlayer.UpdateInfo()
+        ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(39)) // right arrow
       {
         PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(5,0))
         
-        //ThisPlayer.UpdateInfo()
+        ThisPlayer.UpdateInfo()
       }
   }
 
@@ -208,4 +130,12 @@ function StartGame()
   })
 
   GameState = "Play"
+
+  database.ref("CurrentPlayers").update({
+    [UserName] : {
+      Position: {x: 200, y:200}
+    }
+  })
+
+  ThisPlayer = new MyPlayer(UserName)
 }
