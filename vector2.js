@@ -41,9 +41,17 @@ class Vector2{
         }
     } 
 
-    Destory()
+    Unit()
     {
-        
+        return  {
+            x: this.x/this.Magnitude,
+            y: this.y/this.Magnitude
+        }
+    }
+
+    Magnitude()
+    {
+       return sqrt(pow(this.x, 2) + pow(this.y, 2)) 
     }
 
 

@@ -8,6 +8,10 @@ var ThingsToUpdate = []
 
 var PlayerModel
 
+var AllPlayerModels = {}
+
+var AllPlayersInfo = {}
+
 var UserName = null
 
 var GameState = "Form"
@@ -30,6 +34,16 @@ function setup() {
     Density: 3
 }
 
+  database.ref("CurrentPlayerNames").on("value", function(data)
+  {
+    Players = data.val()
+  })
+
+  database.ref("CurrentPlayers").on("value", function(data)
+  {
+    AllPlayersInfo = data.val()
+  })
+
   StartForm()
 }
 
@@ -38,8 +52,13 @@ function draw() {
 
   //console.log(MyPlayerDetails)
 
+  console.log(AllPlayersInfo)
+
   if (GameState == "Play")
   {
+
+
+
       if (keyIsDown(40))
       {
         PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(0,5))
@@ -67,6 +86,7 @@ function draw() {
         
         ThisPlayer.UpdateInfo()
       }
+
   }
 
 
@@ -135,6 +155,10 @@ function StartGame()
     [UserName] : {
       Position: {x: 200, y:200}
     }
+  })
+
+  database.ref("CurrentPlayerNames").update({
+    [UserName]: UserName
   })
 
   ThisPlayer = new MyPlayer(UserName)
