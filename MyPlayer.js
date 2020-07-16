@@ -38,4 +38,9 @@ class MyPlayer
             }
         });
     }
+
+    Copy()
+    {
+        return JSON.parse(JSON.stringify(this))
+    }
 }
