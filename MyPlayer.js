@@ -4,8 +4,7 @@ class MyPlayer
     constructor(Name)
     {
         this.Name = Name
-        this.Model = PlayerModel
-        this.Position = {}
+        this.Position = Vector2.new(0,0)
         this.PlayerRef = null
     }
 
@@ -14,8 +13,8 @@ class MyPlayer
         database.ref('CurrentPlayers').update({
             [this.Name]: {
                 Position: {
-                    x: this.Model.Position.x,
-                    y: this.Model.Position.y
+                    x: this.Position.x,
+                    y: this.Position.y
                 }
             }
         });
