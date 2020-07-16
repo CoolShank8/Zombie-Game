@@ -4,8 +4,7 @@ class MyPlayer
     constructor(Name)
     {
         this.Name = Name
-        this.Position = Vector2.new(0,0)
-        this.PlayerRef = null
+        this.Position = Vector2.new(200,200)
     }
 
     UpdateInfo()
