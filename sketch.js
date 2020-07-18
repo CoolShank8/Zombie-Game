@@ -1,23 +1,37 @@
 var database
 
-var Players = {}
-
 var ThisPlayer
 
 var ThingsToUpdate = []
 
-var PlayerModel
-
-var AllPlayerModels = {}
-
-var AllPlayersInfo = {}
+var Players
 
 var UserName = null
 
 var GameState = "Form"
 
+var CurrentWave
+
+var CurrentLeader = null
+
+window.onbeforeunload = function () {
+
+  if (UserName != null || UserName != undefined)
+  {
+    database.ref("CurrentPlayerNames").update({
+      [UserName]: null
+    })
+
+    database.ref("CurrentPlayers").update({
+      [UserName]: null
+    })
+  }
+};
+
 function setup() {
   database = firebase.database()
+
+  Players = new PlayerService()
 
   createCanvas(displayWidth,700)
 
@@ -34,14 +48,24 @@ function setup() {
     Density: 3
 }
 
-  database.ref("CurrentPlayerNames").on("value", function(data)
-  {
-    Players = data.val()
-  })
+    database.ref("Leader").on("value", (data) => {
+      CurrentLeader = data.val()
+    })
 
-  database.ref("CurrentPlayers").on("value", function(data)
+  database.ref("CurrentWave").on("value", function(data)
   {
-    AllPlayersInfo = data.val()
+
+    if (data.val() != undefined || data.val() != null)
+    {
+      CurrentWave = data.val()
+    }
+
+    else
+    {
+      database.ref("/").update({
+        CurrentWave: 1
+      })
+    }
   })
 
   StartForm()
@@ -50,39 +74,41 @@ function setup() {
 function draw() {
   background(255,255,255);  
 
-  //console.log(MyPlayerDetails)
-
-  console.log(AllPlayersInfo)
 
   if (GameState == "Play")
   {
 
-
+      if (CurrentLeader == UserName && frameCount%120 == 0)
+      {
+        new Zombie()
+      }
 
       if (keyIsDown(40))
       {
-        PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(0,5))
+        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,5))
         
+        console.log(ThisPlayer.Position)
+
         ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(38))
       {
-        PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(0,-5))
+        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,-5))
 
         ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(37)) // left arrow
       {
-        PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(-5,0))
+        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(-5,0))
 
         ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(39)) // right arrow
       {
-        PlayerModel.Position = Vector2.Add(PlayerModel.Position, Vector2.new(5,0))
+        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(5,0))
         
         ThisPlayer.UpdateInfo()
       }
@@ -144,16 +170,13 @@ async function GetHighestDatabasePlayerIndex()
 
 function StartGame()
 {
-  PlayerModel = Part.new({
-    Position: Vector2.new(displayWidth/2, 200),
-    Shape: "Circle"
-  })
+  ThisPlayer = new MyPlayer(UserName)
 
   GameState = "Play"
 
   database.ref("CurrentPlayers").update({
     [UserName] : {
-      Position: {x: 200, y:200}
+      Position: {x: ThisPlayer.Position.x, y: ThisPlayer.Position.y}
     }
   })
 
@@ -161,5 +184,18 @@ function StartGame()
     [UserName]: UserName
   })
 
-  ThisPlayer = new MyPlayer(UserName)
+  database.ref("/").update({
+    Leader: UserName
+  })
+
+
+}
+
+function CalculatePath(Part1, Part2)
+{
+  var Distance = Vector2.Sub(Part1.Position, Part2.Position).Magnitude()
+
+  var Direction = Vector2.Sub(Part1.Position, Part2.Position).Unit()
+
+  
 }

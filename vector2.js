@@ -8,13 +8,6 @@ class Vector2{
         this.x = x
         this.y = y
 
-        this.Magnitude = sqrt(pow(this.x, 2) + pow(this.y, 2))
-
-        this.Unit = {
-            x: this.x/this.Magnitude,
-            y: this.y/this.Magnitude
-        }
-
         if (ReadOnly == undefined)
         {
             this.ReadOnly = true
@@ -44,8 +37,8 @@ class Vector2{
     Unit()
     {
         return  {
-            x: this.x/this.Magnitude,
-            y: this.y/this.Magnitude
+            x: this.x/this.Magnitude(),
+            y: this.y/this.Magnitude()
         }
     }
 

@@ -84,7 +84,7 @@ class Part
 
             if (Collide(this, part) == true)
             {
-                console.log("COLLISIOn")
+                //console.log("COLLISIOn")
             }
 
             else
@@ -127,5 +127,10 @@ class Part
    static new(PropertyTable)
     {
         return new Part(PropertyTable)
+    }
+
+    Destory()
+    {
+        //ThingsToUpdate.push(this)  
     }
 }
