@@ -14,6 +14,8 @@ var CurrentWave
 
 var CurrentLeader = null
 
+var AllZombies = {}
+
 window.onbeforeunload = function () {
 
   if (UserName != null || UserName != undefined)
@@ -29,6 +31,8 @@ window.onbeforeunload = function () {
 };
 
 function setup() {
+  
+  
   database = firebase.database()
 
   Players = new PlayerService()
@@ -68,6 +72,10 @@ function setup() {
     }
   })
 
+  database.ref("Zombies").on("value", (data) => {
+    AllZombies = data.val()
+  })
+
   StartForm()
 }
 
@@ -78,7 +86,13 @@ function draw() {
   if (GameState == "Play")
   {
 
-      if (CurrentLeader == UserName && frameCount%120 == 0)
+      for (var zomb in AllZombies)
+      {
+        console.log(AllZombies)
+        circle(AllZombies[zomb].Position.x, AllZombies[zomb].Position.y)
+      }
+
+      if (frameCount%120 == 0)
       {
         new Zombie()
       }
@@ -86,8 +100,6 @@ function draw() {
       if (keyIsDown(40))
       {
         ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,5))
-        
-        console.log(ThisPlayer.Position)
 
         ThisPlayer.UpdateInfo()
       }

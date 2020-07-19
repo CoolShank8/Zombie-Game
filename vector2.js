@@ -29,16 +29,28 @@ class Vector2{
         this.Magnitude = sqrt(pow(this.x, 2) + pow(this.y, 2))
 
         this.Unit = {
-            x: this.x/this.Magnitude,
-            y: this.y/this.Magnitude
+            x: this.x/this.Magnitude(),
+            y: this.y/this.Magnitude()
         }
     } 
 
     Unit()
     {
-        return  {
-            x: this.x/this.Magnitude(),
-            y: this.y/this.Magnitude()
+
+        if (this.Magnitude() != 0)
+        {
+            return  {
+                x: this.x/this.Magnitude(),
+                y: this.y/this.Magnitude()
+            }
+        }
+
+        else
+        {
+            return  {
+                x: this.x/1,
+                y: this.y/1
+            }
         }
     }
 

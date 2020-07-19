@@ -65,6 +65,8 @@ class Part
 
         ThingsToUpdate.push(this)
         Part.PartArray.push(this)
+
+        this.UpdateNumber = Part.PartArray.length - 1
     }
 
     Update()
@@ -129,8 +131,9 @@ class Part
         return new Part(PropertyTable)
     }
 
-    Destory()
+    Destroy()
     {
-        //ThingsToUpdate.push(this)  
+        ThingsToUpdate.splice(this.UpdateNumber, 1)
+
     }
 }

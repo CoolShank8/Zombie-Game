@@ -11,7 +11,6 @@ class PlayerService
           
         database.ref("CurrentPlayers").on("value", (data) =>
         {
-            console.log("cool")
 
             if (data.val() != null && data != undefined)
             {
@@ -19,19 +18,14 @@ class PlayerService
 
 
                 for (var i = 0; i < Keys.length; i++)
-                {
-                    console.log(this)
-
-                    console.log(this.PlayerInfos)
-                  
+                { 
                     this.PlayerInfos[Keys[i]] = data.val()[Keys[i]]
                 }
             }
         })
 
         database.ref("CurrentPlayerNames").on("value", (data) =>
-        {
-          console.log("ref")
+        {      
       
             // so we need to check the new player added this is only for models
       
