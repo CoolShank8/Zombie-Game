@@ -16,6 +16,10 @@ var CurrentLeader = null
 
 var AllZombies = {}
 
+var ZombieNames = {}
+
+var Bullets = []
+
 window.onbeforeunload = function () {
 
   if (UserName != null || UserName != undefined)
@@ -27,7 +31,27 @@ window.onbeforeunload = function () {
     database.ref("CurrentPlayers").update({
       [UserName]: null
     })
+
+    database.ref("PlayerHealths").update({
+      [UserName]: null
+    })
   }
+
+  for (var i = 0; i <= Zombie.ZombieCount; i++)
+  {
+    var ref = UserName + "Zombie" + i
+
+    database.ref("Zombies").update({
+      [ref]: null
+    })
+
+    database.ref("ZombieNames").update({
+      [ref]: null
+    })
+
+
+  }
+
 };
 
 function setup() {
@@ -73,7 +97,14 @@ function setup() {
   })
 
   database.ref("Zombies").on("value", (data) => {
-    AllZombies = data.val()
+    if (data != undefined && data != null)
+    {
+      AllZombies = data.val()
+    }
+  })
+
+  database.ref("ZombieNames").on("value", (data) => {
+    ZombieNames = data.val()
   })
 
   StartForm()
@@ -86,13 +117,41 @@ function draw() {
   if (GameState == "Play")
   {
 
+      for (var i in Bullets)
+      {
+        var bullet = Bullets[i]
+
+        for (var x in AllZombies)
+        {
+          var zom = AllZombies[x]
+
+          if (Collide(zom, bullet, 25))
+          {
+
+            console.log(AllZombies)
+
+            database.ref("Zombies").update({
+              [x]: null
+            })
+
+            database.ref("ZombieNames").update({
+              [x]: null
+            })
+
+            console.log(x)
+
+            console.log("ZOMBIE DESTROETYED!")
+
+          }
+        }
+      }
+
       for (var zomb in AllZombies)
       {
-        console.log(AllZombies)
         circle(AllZombies[zomb].Position.x, AllZombies[zomb].Position.y)
       }
 
-      if (frameCount%120 == 0)
+      if (frameCount%240 == 0)
       {
         new Zombie()
       }
@@ -100,29 +159,25 @@ function draw() {
       if (keyIsDown(40))
       {
         ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,5))
-
-        ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(38))
       {
         ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,-5))
 
-        ThisPlayer.UpdateInfo()
+       
       }
 
       if (keyIsDown(37)) // left arrow
       {
         ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(-5,0))
 
-        ThisPlayer.UpdateInfo()
       }
 
       if (keyIsDown(39)) // right arrow
       {
         ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(5,0))
         
-        ThisPlayer.UpdateInfo()
       }
 
   }
@@ -132,6 +187,28 @@ function draw() {
 
 }
 
+function keyPressed()
+{
+  console.log(mouseX+ "                " + mouseY)
+
+  if (keyCode == 32)
+  {
+    var bullet = new Part({
+      Position: ThisPlayer.Position,
+      Shape: "Circle",
+      Size: Vector2.new(25,25),
+      Color: "red"
+    })
+
+    var Unit  = Vector2.Sub(Vector2.new(mouseX, mouseY), ThisPlayer.Position).Unit()
+
+    bullet.Velocity = Vector2.new(Unit.x * 5, Unit.y * 5)
+
+    Bullets.push(bullet)
+
+    console.log(bullet)
+  }
+}
 
 function Update()
 {
@@ -150,12 +227,12 @@ function UpdateValueInDatabase(NodeName, NewValue)
 
 
 
-function Collide(Circle1, Circle2)
+function Collide(Circle1, Circle2, CircleSizes)
 {
     var DistanceX = Circle1.Position.x - Circle2.Position.x
     var DistanceY = Circle1.Position.y - Circle2.Position.y
 
-    var RaduisSum = Circle1.Size.x/2 + Circle2.Size.x/2
+    var RaduisSum = CircleSizes * 2
 
     if (DistanceX * DistanceX + DistanceY * DistanceY < RaduisSum * RaduisSum)
     {
