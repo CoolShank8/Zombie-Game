@@ -20,38 +20,10 @@ var ZombieNames = {}
 
 var Bullets = []
 
-window.onbeforeunload = function () {
 
-  if (UserName != null || UserName != undefined)
-  {
-    database.ref("CurrentPlayerNames").update({
-      [UserName]: null
-    })
-
-    database.ref("CurrentPlayers").update({
-      [UserName]: null
-    })
-
-    database.ref("PlayerHealths").update({
-      [UserName]: null
-    })
-  }
-
-  for (var i = 0; i <= Zombie.ZombieCount; i++)
-  {
-    var ref = UserName + "Zombie" + i
-
-    database.ref("Zombies").update({
-      [ref]: null
-    })
-
-    database.ref("ZombieNames").update({
-      [ref]: null
-    })
-
-
-  }
-
+window.onbeforeunload = function() 
+{
+  ThisPlayer.ClearInfo()
 };
 
 function setup() {
@@ -117,6 +89,16 @@ function draw() {
   if (GameState == "Play")
   {
 
+      if (ThisPlayer.Stats != null)
+      {
+        push()
+        textSize(50)
+        text("All time kills: "+ ThisPlayer.Stats.Kills, 200,400)
+        text("Round kills: "+ ThisPlayer.RoundStats.Kills, 200,200)
+        pop()
+      }
+
+
       for (var i in Bullets)
       {
         var bullet = Bullets[i]
@@ -142,6 +124,12 @@ function draw() {
 
             console.log("ZOMBIE DESTROETYED!")
 
+            database.ref("PlayerStats/" + UserName).update({
+              Kills: ThisPlayer.Stats.Kills + 1
+            })
+
+            ThisPlayer.RoundStats.Kills++
+          
           }
         }
       }
@@ -164,8 +152,6 @@ function draw() {
       if (keyIsDown(38))
       {
         ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,-5))
-
-       
       }
 
       if (keyIsDown(37)) // left arrow
@@ -189,7 +175,6 @@ function draw() {
 
 function keyPressed()
 {
-  console.log(mouseX+ "                " + mouseY)
 
   if (keyCode == 32)
   {
@@ -205,8 +190,6 @@ function keyPressed()
     bullet.Velocity = Vector2.new(Unit.x * 5, Unit.y * 5)
 
     Bullets.push(bullet)
-
-    console.log(bullet)
   }
 }
 
@@ -277,6 +260,25 @@ function StartGame()
     Leader: UserName
   })
 
+  database.ref("PlayerStats/" + UserName).on("value", function(data)
+  {
+    var Stats = data.val()
+
+    if (Stats == null || Stats == undefined)
+    {
+      Stats = {
+        Kills: 0,
+        Wins: 0
+      }
+    }
+
+    database.ref("PlayerStats").update({
+      [UserName]: Stats
+    })
+
+    ThisPlayer.Stats = Stats
+  })
+
 
 }
 
@@ -288,3 +290,4 @@ function CalculatePath(Part1, Part2)
 
   
 }
+

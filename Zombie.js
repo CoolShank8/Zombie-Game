@@ -31,7 +31,9 @@ class Zombie {
 
             if (Zombies == null)
             {
-                ThingsToUpdate.splice(this.UpdatePosition, 0)
+                console.log(ThingsToUpdate)
+                ThingsToUpdate.splice(this.UpdatePosition, 1)
+                console.log(ThingsToUpdate)
                 this.Destoryed = true
             }
 
@@ -40,7 +42,7 @@ class Zombie {
                 if (Zombies[this.ref] == undefined || Zombies[this.ref]  == null)
                 {
                     console.log(" DESTROYED")
-                    ThingsToUpdate.splice(this.UpdatePosition, 0)
+                    ThingsToUpdate.splice(this.UpdatePosition, 1)
                     this.Destoryed = true
                 }
             }
@@ -59,8 +61,7 @@ class Zombie {
 
    Update()
    {
-       if (this.Destoryed == false)
-       {
+      
             if (this.TargetModel != null)
             {
                 var Unit = Vector2.Sub(this.Position, this.TargetModel.Position).Unit()
@@ -98,6 +99,6 @@ class Zombie {
                     this.TargetName = plr
                 }
             }
-       }            
+               
    }
 }
