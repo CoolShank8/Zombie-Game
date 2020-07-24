@@ -20,45 +20,44 @@ function StartForm()
         {
           //setTimeout(StartGame, 2000)
 
-          setTimeout(StartLobby,2000)
+          setTimeout(async function(){
+            await StartLobby()
 
-          setTimeout(function()
-          {
             var BuyGunsForm = new Form()
 
             var StartGameButton = createButton("Start game!")
 
             StartGameButton.position(displayWidth/4 * 3, 500)
 
+            var StartGameClicked = false
+
             StartGameButton.mousePressed(function()
             {
-              setTimeout(function()
+              if (StartGameClicked == false)
               {
-                BuyGunsForm.Hide()
-                StartGameButton.hide()
-
-                for (var i in GunImagesParts)
+                setTimeout(function()
                 {
-                  GunImagesParts[i].Position = Vector2.new(2929,12312312)
-                }
+                  BuyGunsForm.Hide()
+                  StartGameButton.hide()
 
-                StartGame()
-              }, 1500)
+                  StartGame()
+                }, 2000)
 
-              
+                StartGameClicked = true
+              }
             })
 
-            DisplayGun(BuyGunsForm, "Piston", 300)
-            DisplayGun(BuyGunsForm, "Ak47", 500)
-          }, 2000)
 
-          setTimeout(function()
-          {
             LoginForm.Hide()
             ReigsterForm.Hide()
             RegisterAccountButton.hide()
             ShowLoginFormButton.hide()
-          },2000)
+
+            DisplayGun(BuyGunsForm, "Piston", 300)
+            DisplayGun(BuyGunsForm, "Ak47", 500)
+          }, 2000)
+  
+
         }
     }
   })

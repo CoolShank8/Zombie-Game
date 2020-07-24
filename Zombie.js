@@ -61,7 +61,10 @@ class Zombie {
 
    Update()
    {
-      
+    console.log(this.Destoryed)
+
+      if (this.Destoryed == false)
+      {
             if (this.TargetModel != null)
             {
                 var Unit = Vector2.Sub(this.Position, this.TargetModel.Position).Unit()
@@ -69,7 +72,7 @@ class Zombie {
 
             
 
-                this.Position = Vector2.Add(this.Position, Vector2.new(-Unit.x * 3, -Unit.y * 3) )
+                this.Position = Vector2.Add(this.Position, Vector2.new(-Unit.x * ZombieSpeedCurrently, -Unit.y * ZombieSpeedCurrently) )
 
                 if (Distance < this.TargetModel.Size.x/2)
                 {
@@ -99,6 +102,7 @@ class Zombie {
                     this.TargetName = plr
                 }
             }
+      }
                
    }
 }

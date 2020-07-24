@@ -43,25 +43,18 @@ class PlayerService
                 if (this.PlayerModels[Keys[i]] == undefined)
                 {
                   NewPlayerUserName = Keys[i]
-                  console.log("kjjakskj")
-                  break
+                  var NewPlayerModel = Part.new({
+                    Position: Vector2.new(200,200),
+                    Shape: "Circle",
+                    Color: "yellow"
+                  })
+        
+        
+                  this.PlayerModels[NewPlayerUserName] = NewPlayerModel
                 }
       
               }
-      
-              if (NewPlayerUserName)
-              {
-                var NewPlayerModel = Part.new({
-                  Position: Vector2.new(200,200),
-                  Shape: "Circle",
-                  Color: "yellow"
-                })
-      
-                console.log(NewPlayerModel)
-      
-                this.PlayerModels[NewPlayerUserName] = NewPlayerModel
-              }
-              
+
             }
         })
     }

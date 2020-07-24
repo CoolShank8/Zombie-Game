@@ -10,6 +10,8 @@ class MyPlayer
 
         this.Gun = null
 
+        this.OwnedGuns = {}
+
         this.Stats = {
 
         }

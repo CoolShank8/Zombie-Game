@@ -26,6 +26,9 @@ var GunImagesParts = []
 
 var Reloading = false
 
+var ZombieSpeedCurrently = 2 // increasing difficlulty
+var ZombiesToSpawn = 1
+
 var DefaultGuns = {
   Markov: {
     ReloadTime: 5
@@ -97,6 +100,10 @@ function setup() {
     {
       AllZombies = data.val()
     }
+
+    else{
+      AllZombies = {}
+    }
   })
 
   database.ref("ZombieNames").on("value", (data) => {
@@ -128,6 +135,17 @@ function draw() {
 
   if (GameState == "Play")
   {
+
+    if (frameCount%3600 == 0)
+    {
+      ZombiesToSpawn++
+    }
+
+    if (frameCount%150 == 0)
+    {
+      ZombieSpeedCurrently = ZombieSpeedCurrently + 0.05
+    }
+
     console.log(ThisPlayer.Gun)
 
 
@@ -151,8 +169,10 @@ function draw() {
       {
         push()
         textSize(50)
+        text("Coins: " + ThisPlayer.Stats.Coins,200, 600)
         text("All time kills: "+ ThisPlayer.Stats.Kills, 200,400)
         text("Round kills: "+ ThisPlayer.RoundStats.Kills, 200,200)
+        
         pop()
       }
 
@@ -165,8 +185,10 @@ function draw() {
         {
           var zom = AllZombies[x]
 
-          if (Collide(zom, bullet, 25))
+          if (Collide(zom, bullet, 50, 25))
           {
+
+            Destoryed = true
 
             console.log(AllZombies)
 
@@ -178,18 +200,21 @@ function draw() {
               [x]: null
             })
 
-            console.log(x)
-
             console.log("ZOMBIE DESTROETYED!")
 
             database.ref("PlayerStats/" + UserName).update({
-              Kills: ThisPlayer.Stats.Kills + 1
+              Kills: ThisPlayer.Stats.Kills + 1,
+              Coins: ThisPlayer.Stats.Coins + 10
             })
 
             ThisPlayer.RoundStats.Kills++
-          
+            
+            console.log(ZombieNames)
+
           }
+          
         }
+
       }
 
       for (var zomb in AllZombies)
@@ -199,7 +224,10 @@ function draw() {
 
       if (frameCount%240 == 0)
       {
-        new Zombie()
+        for (var x = 1; x <= ZombiesToSpawn; x++)
+        {
+          new Zombie()
+        }
       }
 
       if (keyIsDown(40))
@@ -270,12 +298,12 @@ function UpdateValueInDatabase(NodeName, NewValue)
 
 
 
-function Collide(Circle1, Circle2, CircleSizes)
+function Collide(Circle1, Circle2, Circle1Size, Circle2Size)
 {
     var DistanceX = Circle1.Position.x - Circle2.Position.x
     var DistanceY = Circle1.Position.y - Circle2.Position.y
 
-    var RaduisSum = CircleSizes * 2
+    var RaduisSum = Circle1Size + Circle2Size
 
     if (DistanceX * DistanceX + DistanceY * DistanceY < RaduisSum * RaduisSum)
     {
@@ -299,9 +327,28 @@ async function GetHighestDatabasePlayerIndex()
   }
 }
 
-function StartLobby()
+async function StartLobby()
 {
+
   ThisPlayer = new MyPlayer(UserName)
+
+  var PlayerGuns = await database.ref("PlayerGuns/" + UserName).once("value")
+
+  
+
+  if (PlayerGuns.exists())
+  {
+    ThisPlayer.OwnedGuns = PlayerGuns.val()
+  }
+
+  database.ref("PlayerGuns/" + UserName).on("value", function(data)
+  {
+    console.log(data.val())
+    if (data.val() != null && data.val() != undefined)
+    {
+      ThisPlayer.OwnedGuns = data.val()
+    }
+  })
 
   ThisPlayer.Gun = "Markov"
 
@@ -331,6 +378,11 @@ function StartLobby()
 
 function StartGame()
 {
+
+  for (var i in GunImagesParts)
+  {
+    GunImagesParts[i].Position = Vector2.new(2929,12312312)
+  }
 
   GameState = "Play"
 
@@ -377,29 +429,44 @@ function DisplayGun(Form,GunName, Xpos)
 
   GunImagesParts.push(GunImagePart)
 
-  console.log(Guns[GunName])
-
   Form.CreateElement("Price: "+ Guns[GunName].Price,  Vector2.new(Xpos, 400))
 
   console.log(Guns[GunName].ReloadTime)
 
   Form.CreateElement("ReloadTime: " + Guns[GunName].ReloadTime, Vector2.new(Xpos, 450))
 
-  var BuyButton = Form.CreateButton("Buy", Vector2.new(Xpos, 500), function(){
-    if (Guns[GunName].Price <= ThisPlayer.Stats.Coins)
-        {
 
-         database.ref("PlayerStats/" + UserName).update({
-           Coins: ThisPlayer.Stats.Coins - Guns[GunName].Price
-         })
+  console.log(ThisPlayer.OwnedGuns)
 
-         database.ref("PlayerGuns/" + UserName).update({
+  if (ThisPlayer.OwnedGuns[GunName] != undefined)
+  {
+    CreateEquipGunButton(Form, GunName)
+  }
+
+  else
+  {
+    var BuyButton = Form.CreateButton("Buy", Vector2.new(Xpos, 500), function(){
+      if (Guns[GunName].Price <= ThisPlayer.Stats.Coins)
+      {
+  
+      database.ref("PlayerStats/" + UserName).update({
+        Coins: ThisPlayer.Stats.Coins - Guns[GunName].Price
+      })
+  
+        database.ref("PlayerGuns/" + UserName).update({
             [GunName]: GunName
          })
+  
+        BuyButton.hide()
+  
+      CreateEquipGunButton(Form,GunName)
+      }}
+    )}
 
-         BuyButton.hide()
 
-         var EquipButton = Form.CreateButton("Equip", Vector2.new(Xpos, 200), function()
+function CreateEquipGunButton(form, GunName)
+{
+  var EquipButton = form.CreateButton("Equip", Vector2.new(Xpos, 500), function()
          {
            ThisPlayer.Gun = GunName
            
@@ -416,5 +483,4 @@ function DisplayGun(Form,GunName, Xpos)
 
          EquipButtonsArray[GunName + "EquipButton"] = EquipButton
       }
-  })
 }
