@@ -20,6 +20,29 @@ var ZombieNames = {}
 
 var Bullets = []
 
+var EquipButtonsArray = {}
+
+var GunImagesParts = []
+
+var Reloading = false
+
+var DefaultGuns = {
+  Markov: {
+    ReloadTime: 5
+  }
+}
+
+var Guns = {
+  Piston: {
+    Price: 200,
+    ReloadTime: 4
+  },
+  Ak47: {
+    Price: 1000,
+    ReloadTime: 2
+  }
+}
+
 
 window.onbeforeunload = function() 
 {
@@ -27,6 +50,7 @@ window.onbeforeunload = function()
 };
 
 function setup() {
+  
   
   
   database = firebase.database()
@@ -82,12 +106,46 @@ function setup() {
   StartForm()
 }
 
+// frameCount
+
+// getFrameRate()
+
+// frames in second
+
 function draw() {
   background(255,255,255);  
 
 
+
+  if (GameState == "Lobby")
+  {
+    push()
+    textSize(50)
+    text("Coins: "+ ThisPlayer.Stats.Coins, 200,200)
+    pop()
+  }
+
+
   if (GameState == "Play")
   {
+    console.log(ThisPlayer.Gun)
+
+
+    if (Guns[ThisPlayer.Gun] != undefined)
+    {
+      if (frameCount%(Math.round(getFrameRate()) * Guns[ThisPlayer.Gun].ReloadTime) == 0)
+      {
+        Reloading = false
+      }
+    }
+
+    else
+    {
+      if (frameCount%(Math.round(getFrameRate()) * DefaultGuns[ThisPlayer.Gun].ReloadTime) == 0)
+      {
+        Reloading = false
+      }
+    }
 
       if (ThisPlayer.Stats != null)
       {
@@ -176,8 +234,10 @@ function draw() {
 function keyPressed()
 {
 
-  if (keyCode == 32)
+  if (keyCode == 32 && Reloading == false)
   {
+    Reloading = true
+
     var bullet = new Part({
       Position: ThisPlayer.Position,
       Shape: "Circle",
@@ -239,10 +299,38 @@ async function GetHighestDatabasePlayerIndex()
   }
 }
 
+function StartLobby()
+{
+  ThisPlayer = new MyPlayer(UserName)
+
+  ThisPlayer.Gun = "Markov"
+
+  database.ref("PlayerStats/" + UserName).on("value", function(data)
+  {
+    var Stats = data.val()
+
+    if (Stats == null || Stats == undefined)
+    {
+      Stats = {
+        Kills: 0,
+        Wins: 0,
+        Coins: 0
+      }
+    }
+
+    database.ref("PlayerStats").update({
+      [UserName]: Stats
+    })
+
+    ThisPlayer.Stats = Stats
+  })
+
+  GameState = "Lobby"
+
+}
 
 function StartGame()
 {
-  ThisPlayer = new MyPlayer(UserName)
 
   GameState = "Play"
 
@@ -260,25 +348,6 @@ function StartGame()
     Leader: UserName
   })
 
-  database.ref("PlayerStats/" + UserName).on("value", function(data)
-  {
-    var Stats = data.val()
-
-    if (Stats == null || Stats == undefined)
-    {
-      Stats = {
-        Kills: 0,
-        Wins: 0
-      }
-    }
-
-    database.ref("PlayerStats").update({
-      [UserName]: Stats
-    })
-
-    ThisPlayer.Stats = Stats
-  })
-
 
 }
 
@@ -291,3 +360,61 @@ function CalculatePath(Part1, Part2)
   
 }
 
+
+
+function DisplayGun(Form,GunName, Xpos)
+{
+  var Offset = Vector2.new(30,0)
+
+  console.log(Xpos)
+
+
+  var GunImagePart = Part.new({
+    Position: Vector2.Add(Vector2.new(Xpos, 300), Offset),
+    Texture: loadImage(GunName + ".png"),
+    Size: Vector2.new(150,100)
+  })
+
+  GunImagesParts.push(GunImagePart)
+
+  console.log(Guns[GunName])
+
+  Form.CreateElement("Price: "+ Guns[GunName].Price,  Vector2.new(Xpos, 400))
+
+  console.log(Guns[GunName].ReloadTime)
+
+  Form.CreateElement("ReloadTime: " + Guns[GunName].ReloadTime, Vector2.new(Xpos, 450))
+
+  var BuyButton = Form.CreateButton("Buy", Vector2.new(Xpos, 500), function(){
+    if (Guns[GunName].Price <= ThisPlayer.Stats.Coins)
+        {
+
+         database.ref("PlayerStats/" + UserName).update({
+           Coins: ThisPlayer.Stats.Coins - Guns[GunName].Price
+         })
+
+         database.ref("PlayerGuns/" + UserName).update({
+            [GunName]: GunName
+         })
+
+         BuyButton.hide()
+
+         var EquipButton = Form.CreateButton("Equip", Vector2.new(Xpos, 200), function()
+         {
+           ThisPlayer.Gun = GunName
+           
+
+          for (var buttonName in EquipButtonsArray)
+          {
+            var Button = EquipButtonsArray[buttonName]
+
+            Button.html("Equip")
+          }
+
+           EquipButton.html("Equipped")
+         })
+
+         EquipButtonsArray[GunName + "EquipButton"] = EquipButton
+      }
+  })
+}

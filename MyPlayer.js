@@ -8,6 +8,8 @@ class MyPlayer
 
         this.Health = 0
 
+        this.Gun = null
+
         this.Stats = {
 
         }

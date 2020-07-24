@@ -18,7 +18,39 @@ function StartForm()
 
         if (Status == "Sucessfully logging in" )
         {
-          setTimeout(StartGame, 2000)
+          //setTimeout(StartGame, 2000)
+
+          setTimeout(StartLobby,2000)
+
+          setTimeout(function()
+          {
+            var BuyGunsForm = new Form()
+
+            var StartGameButton = createButton("Start game!")
+
+            StartGameButton.position(displayWidth/4 * 3, 500)
+
+            StartGameButton.mousePressed(function()
+            {
+              setTimeout(function()
+              {
+                BuyGunsForm.Hide()
+                StartGameButton.hide()
+
+                for (var i in GunImagesParts)
+                {
+                  GunImagesParts[i].Position = Vector2.new(2929,12312312)
+                }
+
+                StartGame()
+              }, 1500)
+
+              
+            })
+
+            DisplayGun(BuyGunsForm, "Piston", 300)
+            DisplayGun(BuyGunsForm, "Ak47", 500)
+          }, 2000)
 
           setTimeout(function()
           {
