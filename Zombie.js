@@ -97,15 +97,24 @@ class Zombie {
 
             else
             {
+                var ClosestPlayerName = null
+                var ClosestPlayerModel = null
+                var ClosestDistance = 1289120
+
                 for (var plr in Players.PlayerModels)
                 {
-                    
+                    var Distance = Vector2.Sub(this.Position, Players.PlayerModels[plr].Position).Magnitude()
 
-                   // var Distance = Vector2.Sub(this.Model.Position, Players.PlayerModels[plr].Position).Magnitude()
-    
-                    this.TargetModel = Players.PlayerModels[plr]
-                    this.TargetName = plr
+                    if (Distance < ClosestDistance)
+                    {
+                        ClosestPlayerModel = Players.PlayerModels[plr]
+                        ClosestPlayerName = plr
+                        ClosestDistance = Distance
+                    }
                 }
+
+                this.TargetName = ClosestPlayerName
+                this.TargetModel = ClosestPlayerModel
             }
       }
                
