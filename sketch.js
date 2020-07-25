@@ -16,6 +16,8 @@ var CurrentLeader = null
 
 var AllZombies = {}
 
+var ZombieModels = {}
+
 var ZombieNames = {}
 
 var Bullets = []
@@ -96,6 +98,7 @@ function setup() {
   })
 
   database.ref("Zombies").on("value", (data) => {
+
     if (data != undefined && data != null)
     {
       AllZombies = data.val()
@@ -107,7 +110,61 @@ function setup() {
   })
 
   database.ref("ZombieNames").on("value", (data) => {
-    ZombieNames = data.val()
+
+
+  if (data.val() != undefined && data.val() != null)
+  {
+      var Keys = Object.keys(data.val())
+
+      for (var i = 0; i < Keys.length; i ++)
+      {
+        if (ZombieModels[Keys[i]] == undefined)
+        {
+          NewZombieName = Keys[i]
+
+          var NewZombieModel = Part.new({
+            Position: Vector2.new(AllZombies[NewZombieName].Position.x, AllZombies[NewZombieName].Position.y),
+            Shape: "Circle",
+            Color: "green"
+          })
+
+          ZombieModels[NewZombieName] = NewZombieModel
+        }
+
+      }
+
+      
+      for (var zombieName in ZombieModels)
+      {
+        console.log(AllZombies)
+
+        if (AllZombies[zombieName] == undefined)
+        {
+          console.log("desotryed zombie part")
+          ZombieModels[zombieName].Color = "Black"
+          delete ZombieModels[zombieName] 
+
+          console.log(ZombieModels[zombieName])
+        }
+      }
+    }
+
+    
+
+  else // if the data is null it means all the zombies were destoryed
+  {
+    for (var zombieName in ZombieModels)
+    {
+        console.log("desotryed zombie part")
+        ZombieModels[zombieName].Color = "Black"
+        delete ZombieModels[zombieName] 
+    
+    }
+
+    ZombieModels = {}
+  }
+
+
   })
 
   StartForm()
@@ -119,143 +176,156 @@ function setup() {
 
 // frames in second
 
+
 function draw() {
+
   background(255,255,255);  
 
-
-
-  if (GameState == "Lobby")
-  {
-    push()
-    textSize(50)
-    text("Coins: "+ ThisPlayer.Stats.Coins, 200,200)
-    pop()
-  }
-
-
-  if (GameState == "Play")
+  if (GameState != "GameOver")
   {
 
-    if (frameCount%3600 == 0)
-    {
-      ZombiesToSpawn++
-    }
-
-    if (frameCount%150 == 0)
-    {
-      ZombieSpeedCurrently = ZombieSpeedCurrently + 0.05
-    }
-
-    console.log(ThisPlayer.Gun)
-
-
-    if (Guns[ThisPlayer.Gun] != undefined)
-    {
-      if (frameCount%(Math.round(getFrameRate()) * Guns[ThisPlayer.Gun].ReloadTime) == 0)
-      {
-        Reloading = false
-      }
-    }
-
-    else
-    {
-      if (frameCount%(Math.round(getFrameRate()) * DefaultGuns[ThisPlayer.Gun].ReloadTime) == 0)
-      {
-        Reloading = false
-      }
-    }
-
-      if (ThisPlayer.Stats != null)
+      if (GameState == "Lobby")
       {
         push()
         textSize(50)
-        text("Coins: " + ThisPlayer.Stats.Coins,200, 600)
-        text("All time kills: "+ ThisPlayer.Stats.Kills, 200,400)
-        text("Round kills: "+ ThisPlayer.RoundStats.Kills, 200,200)
-        
+        text("Coins: "+ ThisPlayer.Stats.Coins, 200,200)
+        text("Current equipped gun is " + ThisPlayer.Gun, 200,600)
         pop()
       }
 
 
-      for (var i in Bullets)
+      if (GameState == "Play")
       {
-        var bullet = Bullets[i]
 
-        for (var x in AllZombies)
+        if (frameCount%3600 == 0)
         {
-          var zom = AllZombies[x]
+          ZombiesToSpawn++
+        }
 
-          if (Collide(zom, bullet, 50, 25))
+        if (frameCount%150 == 0)
+        {
+          ZombieSpeedCurrently = ZombieSpeedCurrently + 0.05
+        }
+
+        console.log(ThisPlayer.Gun)
+
+
+        if (Guns[ThisPlayer.Gun] != undefined)
+        {
+          if (frameCount%(Math.round(getFrameRate()) * Guns[ThisPlayer.Gun].ReloadTime) == 0)
           {
+            Reloading = false
+          }
+        }
 
-            Destoryed = true
+        else
+        {
+          if (frameCount%(Math.round(getFrameRate()) * DefaultGuns[ThisPlayer.Gun].ReloadTime) == 0)
+          {
+            Reloading = false
+          }
+        }
 
-            console.log(AllZombies)
-
-            database.ref("Zombies").update({
-              [x]: null
-            })
-
-            database.ref("ZombieNames").update({
-              [x]: null
-            })
-
-            console.log("ZOMBIE DESTROETYED!")
-
-            database.ref("PlayerStats/" + UserName).update({
-              Kills: ThisPlayer.Stats.Kills + 1,
-              Coins: ThisPlayer.Stats.Coins + 10
-            })
-
-            ThisPlayer.RoundStats.Kills++
+          if (ThisPlayer.Stats != null)
+          {
+            push()
+            textSize(50)
+            text("Coins: " + ThisPlayer.Stats.Coins,200, 600)
+            text("All time kills: "+ ThisPlayer.Stats.Kills, 200,400)
+            text("Round kills: "+ ThisPlayer.RoundStats.Kills, 200,200)
             
-            console.log(ZombieNames)
+            pop()
+          }
+
+
+          for (var i in Bullets)
+          {
+            var bullet = Bullets[i]
+
+            for (var x in AllZombies)
+            {
+              var zom = AllZombies[x]
+
+              if (Collide(zom, bullet, 50, 25))
+              {
+
+                Destoryed = true
+
+                console.log(AllZombies)
+
+                database.ref("Zombies").update({
+                  [x]: null
+                })
+
+                database.ref("ZombieNames").update({
+                  [x]: null
+                })
+
+                console.log("ZOMBIE DESTROETYED!")
+
+                database.ref("PlayerStats/" + UserName).update({
+                  Kills: ThisPlayer.Stats.Kills + 1,
+                  Coins: ThisPlayer.Stats.Coins + 10
+                })
+
+                ThisPlayer.RoundStats.Kills++
+                
+                console.log(ZombieNames)
+
+              }
+              
+            }
 
           }
-          
-        }
+
+          for (var zomb in ZombieModels)
+          {
+            ZombieModels[zomb].Position = Vector2.new(AllZombies[zomb].Position.x,AllZombies[zomb].Position.y )
+          }
+
+          if (frameCount%240 == 0)
+          {
+            for (var x = 1; x <= ZombiesToSpawn; x++)
+            {
+              new Zombie()
+            }
+          }
+
+          if (keyIsDown(40))
+          {
+            ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,5))
+          }
+
+          if (keyIsDown(38))
+          {
+            ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,-5))
+          }
+
+          if (keyIsDown(37)) // left arrow
+          {
+            ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(-5,0))
+
+          }
+
+          if (keyIsDown(39)) // right arrow
+          {
+            ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(5,0))
+            
+          }
 
       }
 
-      for (var zomb in AllZombies)
-      {
-        circle(AllZombies[zomb].Position.x, AllZombies[zomb].Position.y)
-      }
 
-      if (frameCount%240 == 0)
-      {
-        for (var x = 1; x <= ZombiesToSpawn; x++)
-        {
-          new Zombie()
-        }
-      }
+      Update()
 
-      if (keyIsDown(40))
-      {
-        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,5))
-      }
+  } 
 
-      if (keyIsDown(38))
-      {
-        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,-5))
-      }
 
-      if (keyIsDown(37)) // left arrow
-      {
-        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(-5,0))
-
-      }
-
-      if (keyIsDown(39)) // right arrow
-      {
-        ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(5,0))
-        
-      }
-
+  else
+  {
+    textSize(100)
+    text("GAME OVER!!!", 200,200)
   }
-
-
-  Update()
 
 }
 
@@ -431,12 +501,8 @@ function DisplayGun(Form,GunName, Xpos)
 
   Form.CreateElement("Price: "+ Guns[GunName].Price,  Vector2.new(Xpos, 400))
 
-  console.log(Guns[GunName].ReloadTime)
-
   Form.CreateElement("ReloadTime: " + Guns[GunName].ReloadTime, Vector2.new(Xpos, 450))
 
-
-  console.log(ThisPlayer.OwnedGuns)
 
   if (ThisPlayer.OwnedGuns[GunName] != undefined)
   {

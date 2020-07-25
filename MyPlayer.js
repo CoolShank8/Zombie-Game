@@ -20,9 +20,19 @@ class MyPlayer
             Kills: 0
         }
 
+        this.Health = 100
+
+        database.ref("PlayerHealths/" + this.Name).update({
+          Health: 100
+        })
+
+
         database.ref("PlayerHealths/" + this.Name).on("value", (data) =>
         {
-            this.Health = data.val()
+          if (data.val() != undefined && data.val() != null)
+          {
+            this.Health = data.val().Health
+          }
         })
 
         ThingsToUpdate.push(this)
@@ -30,10 +40,16 @@ class MyPlayer
 
     Update()
     {   
-        if (this.Health == 0)
+
+        if (this.Health <= 0)
         {
-            console.log("I AM A ZOMBIE")
+          this.ClearInfo() // since after the game is over the Update() function is not called anymore
+
+           GameState = "GameOver"
+           console.log("GAME OVER")
         }
+
+        text("Health: " + this.Health, this.Position.x, this.Position.y - 75)
 
         database.ref('CurrentPlayers').update({
             [this.Name]: {

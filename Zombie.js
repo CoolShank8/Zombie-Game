@@ -7,7 +7,7 @@ class Zombie {
 
        this.ref = UserName + "Zombie" + Zombie.ZombieCount
 
-       this.Position = Vector2.new(200,200)
+       this.Position = Vector2.new(random(200,600),random(150,600))
 
        this.TargetModel = null
        this.TargetName = null
@@ -23,7 +23,7 @@ class Zombie {
            }
        })
 
-       database.ref("Zombies").on("value", (data) =>
+       database.ref("Zombies").on("value", (data) => // has to go before zombienames
        {
         if (this.Destoryed == false)
         {
@@ -61,7 +61,6 @@ class Zombie {
 
    Update()
    {
-    console.log(this.Destoryed)
 
       if (this.Destoryed == false)
       {
@@ -76,10 +75,14 @@ class Zombie {
 
                 if (Distance < this.TargetModel.Size.x/2)
                 {
-                    
-                    database.ref("PlayerHealths/" + this.TargetName).update({
-                        Health: 0
-                    })
+
+                    if (Players.PlayerHealths[this.TargetName] != undefined)
+                    {
+
+                        database.ref("PlayerHealths/" + this.TargetName).update({
+                            Health: Players.PlayerHealths[this.TargetName].Health - 3
+                        })
+                    }
                 }
 
                 database.ref("Zombies").update({
@@ -96,6 +99,8 @@ class Zombie {
             {
                 for (var plr in Players.PlayerModels)
                 {
+                    
+
                    // var Distance = Vector2.Sub(this.Model.Position, Players.PlayerModels[plr].Position).Magnitude()
     
                     this.TargetModel = Players.PlayerModels[plr]

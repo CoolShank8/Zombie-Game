@@ -6,13 +6,22 @@ class PlayerService
     {
         this.PlayerModels = {}
         this.PlayerInfos = {}
+        this.PlayerHealths = {}
 
         ThingsToUpdate.push(this)
+
+        database.ref("PlayerHealths").on("value", (data) =>
+        {
+          if (data.val() != undefined && data.val() != null)
+          {
+            this.PlayerHealths = data.val()
+          }
+        })
           
         database.ref("CurrentPlayers").on("value", (data) =>
         {
 
-            if (data.val() != null && data != undefined)
+            if (data.val() != null && data.val() != undefined)
             {
                 var Keys = Object.keys(data.val())
 
@@ -21,6 +30,11 @@ class PlayerService
                 { 
                     this.PlayerInfos[Keys[i]] = data.val()[Keys[i]]
                 }
+            }
+
+            else 
+            {
+              this.PlayerInfos = {}
             }
         })
 
@@ -53,6 +67,15 @@ class PlayerService
                   this.PlayerModels[NewPlayerUserName] = NewPlayerModel
                 }
       
+              }
+
+              for (var PlayerName in this.PlayerModels)
+              {
+                if (data.val()[PlayerName] == undefined)
+                {
+                  delete this.PlayerModels[PlayerName]
+                  console.log("deleted dead player")
+                }
               }
 
             }

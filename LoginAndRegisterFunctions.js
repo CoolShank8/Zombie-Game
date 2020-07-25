@@ -18,7 +18,6 @@ function StartForm()
 
         if (Status == "Sucessfully logging in" )
         {
-          //setTimeout(StartGame, 2000)
 
           setTimeout(async function(){
             await StartLobby()
@@ -29,22 +28,17 @@ function StartForm()
 
             StartGameButton.position(displayWidth/4 * 3, 500)
 
-            var StartGameClicked = false
 
             StartGameButton.mousePressed(function()
             {
-              if (StartGameClicked == false)
-              {
+                StartGameButton.hide()
+
                 setTimeout(function()
                 {
                   BuyGunsForm.Hide()
-                  StartGameButton.hide()
-
                   StartGame()
                 }, 2000)
 
-                StartGameClicked = true
-              }
             })
 
 
@@ -52,6 +46,14 @@ function StartForm()
             ReigsterForm.Hide()
             RegisterAccountButton.hide()
             ShowLoginFormButton.hide()
+
+            var XPosition = 300
+
+            for (var gun in Guns)
+            {
+              DisplayGun(BuyGunsForm, gun, XPosition)
+              XPosition += 200
+            }
 
             DisplayGun(BuyGunsForm, "Piston", 300)
             DisplayGun(BuyGunsForm, "Ak47", 500)
