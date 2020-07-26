@@ -26,10 +26,21 @@ var EquipButtonsArray = {}
 
 var GunImagesParts = []
 
+var BulletService
+
 var Reloading = false
 
 var ZombieSpeedCurrently = 2 // increasing difficlulty
 var ZombiesToSpawn = 1
+
+var StoryForm = new Form()
+
+var Story = [
+  "WE NEED YOUR HELP!",
+  "What happened you ask, zombies have flooded our village! "
+]
+
+var CurrentStoryNumber = 0
 
 var DefaultGuns = {
   Markov: {
@@ -56,11 +67,9 @@ window.onbeforeunload = function()
 
 function setup() {
   
-  
+  RecursiveStoryNext()
   
   database = firebase.database()
-
-  Players = new PlayerService()
 
   createCanvas(displayWidth,700)
 
@@ -77,25 +86,6 @@ function setup() {
     Density: 3
 }
 
-    database.ref("Leader").on("value", (data) => {
-      CurrentLeader = data.val()
-    })
-
-  database.ref("CurrentWave").on("value", function(data)
-  {
-
-    if (data.val() != undefined || data.val() != null)
-    {
-      CurrentWave = data.val()
-    }
-
-    else
-    {
-      database.ref("/").update({
-        CurrentWave: 1
-      })
-    }
-  })
 
   database.ref("Zombies").on("value", (data) => {
 
@@ -179,7 +169,7 @@ function setup() {
 
 function draw() {
 
-  background(255,255,255);  
+  background(100,100,100);  
 
   if (GameState != "GameOver")
   {
@@ -197,7 +187,7 @@ function draw() {
       if (GameState == "Play")
       {
 
-        if (frameCount%3600 == 0)
+        if (frameCount%1800 == 0)
         {
           ZombiesToSpawn++
         }
@@ -226,57 +216,6 @@ function draw() {
           }
         }
 
-          if (ThisPlayer.Stats != null)
-          {
-            push()
-            textSize(50)
-            text("Coins: " + ThisPlayer.Stats.Coins,200, 600)
-            text("All time kills: "+ ThisPlayer.Stats.Kills, 200,400)
-            text("Round kills: "+ ThisPlayer.RoundStats.Kills, 200,200)
-            
-            pop()
-          }
-
-
-          for (var i in Bullets)
-          {
-            var bullet = Bullets[i]
-
-            for (var x in AllZombies)
-            {
-              var zom = AllZombies[x]
-
-              if (Collide(zom, bullet, 50, 25))
-              {
-
-                Destoryed = true
-
-                console.log(AllZombies)
-
-                database.ref("Zombies").update({
-                  [x]: null
-                })
-
-                database.ref("ZombieNames").update({
-                  [x]: null
-                })
-
-                console.log("ZOMBIE DESTROETYED!")
-
-                database.ref("PlayerStats/" + UserName).update({
-                  Kills: ThisPlayer.Stats.Kills + 1,
-                  Coins: ThisPlayer.Stats.Coins + 10
-                })
-
-                ThisPlayer.RoundStats.Kills++
-                
-                console.log(ZombieNames)
-
-              }
-              
-            }
-
-          }
 
           for (var zomb in ZombieModels)
           {
@@ -318,6 +257,18 @@ function draw() {
 
       Update()
 
+      if (GameState == "Play" && ThisPlayer.Stats != null)
+      {
+        push()
+        textSize(50)
+        fill("white")
+        text("Coins: " + ThisPlayer.Stats.Coins,200, 600)
+        text("All time kills: "+ ThisPlayer.Stats.Kills, 200,400)
+        text("Round kills: "+ ThisPlayer.RoundStats.Kills, 200,200)
+        
+        pop()
+      }
+
   } 
 
 
@@ -336,18 +287,10 @@ function keyPressed()
   {
     Reloading = true
 
-    var bullet = new Part({
-      Position: ThisPlayer.Position,
-      Shape: "Circle",
-      Size: Vector2.new(25,25),
-      Color: "red"
-    })
-
     var Unit  = Vector2.Sub(Vector2.new(mouseX, mouseY), ThisPlayer.Position).Unit()
 
-    bullet.Velocity = Vector2.new(Unit.x * 5, Unit.y * 5)
+    BulletService.AddBullet(ThisPlayer.Position,  Vector2.new(Unit.x * 5, Unit.y * 5))
 
-    Bullets.push(bullet)
   }
 }
 
@@ -404,7 +347,7 @@ async function StartLobby()
 
   var PlayerGuns = await database.ref("PlayerGuns/" + UserName).once("value")
 
-  
+  StoryForm.Destroy()
 
   if (PlayerGuns.exists())
   {
@@ -449,9 +392,16 @@ async function StartLobby()
 function StartGame()
 {
 
+  LoadMap()
+
+  BulletService = new BulletStorage()
+  Players = new PlayerService()
+
   for (var i in GunImagesParts)
   {
     GunImagesParts[i].Position = Vector2.new(2929,12312312)
+    //GunImagesParts[i].Destroy()
+    //delete GunImagesParts[i] 
   }
 
   GameState = "Play"
@@ -466,10 +416,6 @@ function StartGame()
     [UserName]: UserName
   })
 
-  database.ref("/").update({
-    Leader: UserName
-  })
-
 
 }
 
@@ -479,4 +425,28 @@ function CalculatePath(Part1, Part2)
 
   var Direction = Vector2.Sub(Part1.Position, Part2.Position).Unit()
   
+}
+
+
+function RecursiveStoryNext()
+{
+  var StoryText = StoryForm.CreateElement(Story[CurrentStoryNumber], Vector2.new(100,300), "h2")
+
+  var NextButton = StoryForm.CreateButton("Next", Vector2.new(100,350), function()
+  {
+    NextButton.remove()
+    StoryText.remove()
+
+    if (CurrentStoryNumber < Story.length - 1)
+    {
+      CurrentStoryNumber++
+      RecursiveStoryNext()
+    }
+
+    else
+    {
+      StoryForm.Hide()
+    }
+
+  })
 }

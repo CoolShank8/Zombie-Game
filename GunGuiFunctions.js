@@ -12,6 +12,7 @@ function DisplayGun(Form,GunName, Xpos)
     Size: Vector2.new(150,100)
   })
 
+
   GunImagesParts.push(GunImagePart)
 
   Form.CreateElement("Price: "+ Guns[GunName].Price,  Vector2.new(Xpos, 400))

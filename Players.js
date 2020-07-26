@@ -90,6 +90,11 @@ class PlayerService
     
         this.PlayerModels[plr].Position.x = plrInfo.Position.x
         this.PlayerModels[plr].Position.y = plrInfo.Position.y
+
+        push()
+        fill("white")
+        text("Health: " + this.PlayerHealths[plr].Health, plrInfo.Position.x, plrInfo.Position.y - 75)
+        pop()
       }
     }
 

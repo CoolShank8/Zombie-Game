@@ -54,6 +54,10 @@ class Zombie {
            [this.ref]: this.ref
        })
 
+       this.Model = ZombieModels[this.ref]
+
+       console.log(this.Model)
+
        ThingsToUpdate.push(this)
 
        this.UpdatePosition = ThingsToUpdate.length - 1

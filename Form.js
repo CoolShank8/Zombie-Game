@@ -77,4 +77,12 @@ class Form{
             this.FormElements[i].show()
         }
     }
+
+    Destroy()
+    {
+        for (var i = 0; i < this.FormElements.length; i++)
+        {
+            this.FormElements[i].remove()
+        }
+    }
 }

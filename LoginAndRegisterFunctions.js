@@ -31,21 +31,21 @@ function StartForm()
 
             StartGameButton.mousePressed(function()
             {
-                StartGameButton.hide()
+                StartGameButton.remove()
 
                 setTimeout(function()
                 {
-                  BuyGunsForm.Hide()
+                  BuyGunsForm.Destroy()
                   StartGame()
                 }, 2000)
 
             })
 
 
-            LoginForm.Hide()
-            ReigsterForm.Hide()
-            RegisterAccountButton.hide()
-            ShowLoginFormButton.hide()
+            LoginForm.Destroy()
+            ReigsterForm.Destroy()
+            RegisterAccountButton.remove()
+            ShowLoginFormButton.remove()
 
             var XPosition = 300
 
@@ -54,9 +54,6 @@ function StartForm()
               DisplayGun(BuyGunsForm, gun, XPosition)
               XPosition += 200
             }
-
-            DisplayGun(BuyGunsForm, "Piston", 300)
-            DisplayGun(BuyGunsForm, "Ak47", 500)
           }, 2000)
   
 

@@ -43,13 +43,14 @@ class MyPlayer
 
         if (this.Health <= 0)
         {
+
+
           this.ClearInfo() // since after the game is over the Update() function is not called anymore
 
            GameState = "GameOver"
            console.log("GAME OVER")
-        }
 
-        text("Health: " + this.Health, this.Position.x, this.Position.y - 75)
+        }
 
         database.ref('CurrentPlayers').update({
             [this.Name]: {
@@ -91,6 +92,18 @@ class MyPlayer
           })
       
         }
+
+        for (var i = 0; i <= Bullet.BulletCount; i++)
+        {
+          var ref = "Bullet" + UserName + i
+      
+          database.ref("Bullets").update({
+            [ref]: null
+          })
+      
+      
+        }
+      
     }
 
 }

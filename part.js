@@ -56,17 +56,17 @@ class Part
                 }
             }
         }
-
-        this.PartNumber = Part.PartArray.length // since we declare this before we dont need to do partarray.length - 1
+ - 1
 
         this.Mass = (this.Size.x * this.Size.y) * this.Density
 
-        console.log(this.Mass)
-
-        ThingsToUpdate.push(this)
         Part.PartArray.push(this)
+        ThingsToUpdate.push(this)
 
-        this.UpdateNumber = Part.PartArray.length - 1
+        this.UpdateNumber = ThingsToUpdate.length - 1
+        this.PartArrayUpdateNumber = Part.PartArray.length - 1
+
+        this.Colliding = false
     }
 
     Update()
@@ -86,12 +86,14 @@ class Part
 
             if (Collide(this, part) == true)
             {
-                //console.log("COLLISIOn")
+                this.Color = "golden"
+                this.Colliding = true
             }
+
 
             else
             {
-                //this.Color = "grey"
+                this.Colliding = false
             }
         }
 
@@ -134,6 +136,6 @@ class Part
     Destroy()
     {
         ThingsToUpdate.splice(this.UpdateNumber, 1)
-
+        Part.PartArray.splice(this.PartArrayUpdateNumber, 1)
     }
 }
