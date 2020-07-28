@@ -37,7 +37,8 @@ var StoryForm = new Form()
 
 var Story = [
   "WE NEED YOUR HELP!",
-  "What happened you ask, zombies have flooded our village! "
+  "What happened you ask, zombies have flooded our village! ",
+  "How? Well the city of darthmount have attacked us!"
 ]
 
 var CurrentStoryNumber = 0
@@ -64,6 +65,7 @@ window.onbeforeunload = function()
 {
   ThisPlayer.ClearInfo()
 };
+
 
 function setup() {
   
@@ -115,7 +117,8 @@ function setup() {
           var NewZombieModel = Part.new({
             Position: Vector2.new(AllZombies[NewZombieName].Position.x, AllZombies[NewZombieName].Position.y),
             Shape: "Circle",
-            Color: "green"
+            Color: "green",
+            Texture: loadImage("Zombie.png")
           })
 
           ZombieModels[NewZombieName] = NewZombieModel
@@ -199,6 +202,22 @@ function draw() {
 
         console.log(ThisPlayer.Gun)
 
+
+        if (touches.length > 0 && Reloading == false)
+        {
+          var LastTouchedPosition = touches[touches.length - 1]
+
+          var x = LastTouchedPosition[0]
+          var y = LastTouchedPosition[1]
+
+          console.log(x + "   " + y)
+
+          Reloading = true
+
+         var Unit  = Vector2.Sub(Vector2.new(x, y), ThisPlayer.Position).Unit()
+
+          BulletService.AddBullet(ThisPlayer.Position,  Vector2.new(Unit.x * 5, Unit.y * 5))
+        }
 
         if (Guns[ThisPlayer.Gun] != undefined)
         {
@@ -393,6 +412,7 @@ function StartGame()
 {
 
   LoadMap()
+  CreateArrowKeys()
 
   BulletService = new BulletStorage()
   Players = new PlayerService()
@@ -449,4 +469,30 @@ function RecursiveStoryNext()
     }
 
   })
+}
+
+function CreateArrowKeys()
+{
+  var ControlForm = new Form()
+  var ForwardButton = ControlForm.CreateButton("⬆️", Vector2.new(displayWidth/4 * 3, 300), function()
+  {
+    ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,-5))
+  })
+
+  var DownButton = ControlForm.CreateButton("⬇️", Vector2.new(displayWidth/4 * 3, 350), function()
+  {
+    ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(0,5))
+  })
+
+  var LeftButton = ControlForm.CreateButton("⬅️",  Vector2.new(displayWidth/4 * 3 - 40, 325), function()
+  {
+    ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(-5,0))
+  })
+
+
+  var RightButton = ControlForm.CreateButton("➡️",  Vector2.new(displayWidth/4 * 3 + 40, 325), function()
+  {
+    ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(5,0))
+  })
+
 }
