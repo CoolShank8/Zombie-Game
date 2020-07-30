@@ -3,7 +3,7 @@ var database
 var ThisPlayer
 
 var ThingsToUpdate = []
-
+  
 var Players
 
 var UserName = null
@@ -134,7 +134,8 @@ function setup() {
         if (AllZombies[zombieName] == undefined)
         {
           console.log("desotryed zombie part")
-          ZombieModels[zombieName].Color = "Black" // we dont need future players to see dead zombies which appeared before they played
+          ZombieModels[zombieName].Texture = loadImage("DeadZombie.png") // we dont need future players to see dead zombies which appeared before they played
+          zombieName[zombieName].TextureVisibility = 0.3
           delete ZombieModels[zombieName] 
 
           console.log(ZombieModels[zombieName])
@@ -148,7 +149,7 @@ function setup() {
   {
     for (var zombieName in ZombieModels)
     {
-        console.log("desotryed zombie part")
+        console.log("desotryed zombie part")  
         ZombieModels[zombieName].Color = "Black"
         delete ZombieModels[zombieName] 
     
