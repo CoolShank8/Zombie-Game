@@ -12,6 +12,8 @@ class MyPlayer
 
         this.OwnedGuns = {}
 
+        this.CoinsEarned = 0
+
         this.Stats = {
 
         }
@@ -43,6 +45,12 @@ class MyPlayer
 
         if (this.Health <= 0)
         {
+
+          this.CoinsEarned = (ZombiesToSpawn + Math.round(ZombieSpeedCurrently)) * Math.Round(this.RoundStats.Kills/2)
+
+          database.ref("PlayerStats/" + UserName).update({
+            Coins: ThisPlayer.Stats.Coins + this.CoinsEarned
+          })
 
 
           this.ClearInfo() // since after the game is over the Update() function is not called anymore

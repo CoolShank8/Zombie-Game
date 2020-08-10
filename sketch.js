@@ -3,7 +3,7 @@ var database
 var ThisPlayer
 
 var ThingsToUpdate = []
-  
+
 var Players
 
 var UserName = null
@@ -67,13 +67,16 @@ window.onbeforeunload = function()
 };
 
 
+var displayWidth = window.innerWidth
+var displayHeight = window.innerHeight
+
 function setup() {
   
   RecursiveStoryNext()
   
   database = firebase.database()
 
-  createCanvas(displayWidth,700)
+  createCanvas(window.innerWidth,window.innerHeight)
 
   Part.DefaultProperties = {
     Position: Vector2.new(displayWidth/2, 200),
@@ -174,6 +177,7 @@ function setup() {
 function draw() {
 
   background(100,100,100);  
+
 
   if (GameState != "GameOver")
   {
@@ -295,7 +299,11 @@ function draw() {
   else
   {
     textSize(100)
-    text("GAME OVER!!!", 200,200)
+    text("GAME OVER!!!", 200,700)
+    push()
+    textSize(30)
+    GenerateStats()
+    pop()
   }
 
 }
@@ -460,7 +468,7 @@ function RecursiveStoryNext()
 
     if (CurrentStoryNumber < Story.length - 1)
     {
-      CurrentStoryNumber++
+      CurrentStoryNumber++  
       RecursiveStoryNext()
     }
 
@@ -496,4 +504,11 @@ function CreateArrowKeys()
     ThisPlayer.Position = Vector2.Add(ThisPlayer.Position, Vector2.new(5,0))
   })
 
+}
+
+function GenerateStats()
+{
+  text("Round Kills: " + ThisPlayer.RoundStats.Kills, 200,200)
+  text("All Time Kills: " + ThisPlayer.Stats.Kills, 200,300)
+  text("Coins earned: " + ThisPlayer.CoinsEarned, 200, 400)
 }
